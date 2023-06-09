@@ -1,5 +1,6 @@
 package com.fc.boardproject.controller;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
+@Disabled("통합환경 테스트 불가능처리")
 @AutoConfigureMockMvc
 @Transactional // test에서 트랜젝션은 롤백.
 @SpringBootTest
