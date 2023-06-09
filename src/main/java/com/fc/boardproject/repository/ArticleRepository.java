@@ -3,7 +3,6 @@ package com.fc.boardproject.repository;
 import com.fc.boardproject.domain.Article;
 import com.fc.boardproject.domain.QArticle;
 import com.querydsl.core.types.dsl.DateTimeExpression;
-import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -15,8 +14,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 public interface ArticleRepository extends
         JpaRepository<Article, Long> ,
         QuerydslPredicateExecutor<Article>,
-        QuerydslBinderCustomizer<QArticle>
-{
+        QuerydslBinderCustomizer<QArticle> {
     @Override
     default void customize(QuerydslBindings bindings, QArticle root) {
         bindings.excludeUnlistedProperties(true);
