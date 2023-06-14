@@ -32,6 +32,9 @@ spring:
     rest:
       base-path: /api
       detection-strategy: annotated # @RepositoryRestResource
+  thymeleaf3:
+    decoupled-logic: true
+
 ---
 
 spring:
