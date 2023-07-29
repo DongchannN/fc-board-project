@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @DisplayName("비즈니스 로직 - 게시글")
 @ExtendWith(MockitoExtension.class)
@@ -57,13 +59,13 @@ class ArticleServiceTest {
     void givenArticleInfo_whenSavingArticle_thenSavesArticle() {
         //Given
 
-        BDDMockito.given(articleRepository.save(ArgumentMatchers.any(Article.class))).willReturn(null);
+        given(articleRepository.save(ArgumentMatchers.any(Article.class))).willReturn(null);
 
         //When
         // sut.saveArticle(new ArticleDto(LocalDateTime.now(), "Chan", "title", "content", "hashtag"));
 
         //Then
-        BDDMockito.then(articleRepository).should().save(ArgumentMatchers.any(Article.class));
+        then(articleRepository).should().save(ArgumentMatchers.any(Article.class));
     }
 
     @DisplayName("게시글 ID, 수정 정보 입력 시 게시글 수정")
@@ -71,13 +73,13 @@ class ArticleServiceTest {
     void givenArticleIdAndModifiedInfo_whenUpdatingArticle_thenUpdatesArticle() {
         //Given
 
-        BDDMockito.given(articleRepository.save(ArgumentMatchers.any(Article.class))).willReturn(null);
+        given(articleRepository.save(ArgumentMatchers.any(Article.class))).willReturn(null);
 
         //When
         // sut.updateArticle(1L, ArticleUpdateDto.of("title", "content", "hashtag"));
 
         //Then
-        BDDMockito.then(articleRepository).should().save(ArgumentMatchers.any(Article.class));
+        then(articleRepository).should().save(ArgumentMatchers.any(Article.class));
     }
 
     @DisplayName("게시글 ID 입력 시 게시글 삭제")
@@ -91,6 +93,20 @@ class ArticleServiceTest {
         sut.deleteArticle(1L);
 
         //Then
-        BDDMockito.then(articleRepository).should().delete(ArgumentMatchers.any(Article.class));
+        then(articleRepository).should().delete(ArgumentMatchers.any(Article.class));
+    }
+
+    @DisplayName("게시글 수를 조회하면, 게시글 수를 반환한다.")
+    void givenNothing_whenCountingArticles_thenReturnsArticleCount() {
+        // Given
+        long expected = 0L;
+        given(articleRepository.count()).willReturn(expected);
+
+        // When
+        long actual = sut.getArticleCount();
+
+        // Then
+        assertThat(actual).isEqualTo(expected);
+        then(articleRepository).should().count();
     }
 }
