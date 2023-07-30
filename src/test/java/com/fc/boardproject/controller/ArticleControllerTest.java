@@ -1,6 +1,7 @@
 package com.fc.boardproject.controller;
 
 import com.fc.boardproject.config.SecurityConfig;
+import com.fc.boardproject.domain.type.SearchType;
 import com.fc.boardproject.dto.ArticleCommentDto;
 import com.fc.boardproject.dto.ArticleWithCommentsDto;
 import com.fc.boardproject.dto.UserAccountDto;
@@ -68,6 +69,34 @@ class ArticleControllerTest {
                 .should().
                 searchArticles(ArgumentMatchers.eq(null),
                         ArgumentMatchers.eq(null),
+                        ArgumentMatchers.any(Pageable.class));
+
+        then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+    }
+
+    @DisplayName("[view][GET] 게시글 리스트 페이지 - 검색와와 함께 호출")
+    @Test
+    public void givenSearchKeyword_whenSearchingArticleView_thenReturnArticlesView() throws Exception {
+        // Given
+        SearchType searchType = SearchType.TITLE;
+        String searchValue = "title";
+        given(articleService.searchArticles(ArgumentMatchers.eq(searchType), ArgumentMatchers.eq(searchValue), ArgumentMatchers.any(Pageable.class))).willReturn(Page.empty());
+        given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(List.of(0, 1, 2, 3, 4));
+        // When & Then
+        mvc.perform(MockMvcRequestBuilders.get("/articles")
+                        .queryParam("SearchType", searchType.name())
+                        .queryParam("SearchValue", searchValue)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(MockMvcResultMatchers.view().name("articles/index"))
+                .andExpect(model().attributeExists("articles"))
+                .andExpect(model().attributeExists("SearchTypes"));
+
+        then(articleService)
+                .should().
+                searchArticles(ArgumentMatchers.eq(searchType),
+                        ArgumentMatchers.eq(searchValue),
                         ArgumentMatchers.any(Pageable.class));
 
         then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
