@@ -1,11 +1,13 @@
 package com.fc.boardproject.service;
 
 import com.fc.boardproject.domain.Article;
+import com.fc.boardproject.domain.UserAccount;
 import com.fc.boardproject.domain.type.SearchType;
 import com.fc.boardproject.dto.ArticleDto;
 import com.fc.boardproject.dto.ArticleUpdateDto;
 import com.fc.boardproject.dto.ArticleWithCommentsDto;
 import com.fc.boardproject.repository.ArticleRepository;
+import com.fc.boardproject.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ import java.util.List;
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
+    private final UserAccountRepository userAccountRepository;
 
     @Transactional(readOnly = true)
     public Page<ArticleDto> searchArticles(SearchType searchType, String searchKeyword, Pageable pageable) {
@@ -59,26 +62,30 @@ public class ArticleService {
     }
 
     public void saveArticle(ArticleDto dto) {
-        articleRepository.save(dto.toEntity());
+        UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
+        articleRepository.save(dto.toEntity(userAccount));
     }
 
-    public void updateArticle(ArticleDto dto) {
+    public void updateArticle(Long articleId, ArticleDto dto) {
         try {
-            Article article = articleRepository.getReferenceById(dto.getId());
-            if (dto.getTitle() != null) {
-                article.setTitle(dto.getTitle());
+            Article article = articleRepository.getReferenceById(articleId);
+            UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
+            if (article.getUserAccount().equals(userAccount)) {
+                if (dto.getTitle() != null) {
+                    article.setTitle(dto.getTitle());
+                }
+                if (dto.getContent() != null) {
+                    article.setContent(dto.getContent());
+                }
+                article.setHashtag(dto.getHashtag());
             }
-            if (dto.getContent() != null) {
-                article.setContent(dto.getContent());
-            }
-            article.setHashtag(dto.getHashtag());
         } catch (EntityNotFoundException e) {
             log.warn("게시글 업데이트 실패, 게시글을 찾을 수 없습니다. - dto: {}", dto);
         }
     }
 
-    public void deleteArticle(long articleId) {
-        articleRepository.deleteById(articleId);
+    public void deleteArticle(long articleId, String userId) {
+        articleRepository.deleteByIdAndUserAccount_UserId(articleId, userId);
     }
 
     public long getArticleCount() {
