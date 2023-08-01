@@ -2,6 +2,8 @@ package com.fc.boardproject.controller;
 
 import com.fc.boardproject.domain.type.SearchType;
 import com.fc.boardproject.dto.ArticleWithCommentsDto;
+import com.fc.boardproject.dto.request.ArticleRequest;
+import com.fc.boardproject.dto.security.BoardPrincipal;
 import com.fc.boardproject.response.ArticleCommentResponse;
 import com.fc.boardproject.response.ArticleResponse;
 import com.fc.boardproject.response.ArticleWithCommentsResponse;
@@ -12,12 +14,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -32,8 +34,8 @@ public class ArticleController {
 
     @GetMapping
     public String articles(
-            @RequestParam(required = false)SearchType searchType,
-            @RequestParam(required = false)String searchValue,
+            @RequestParam(required = false) SearchType searchType,
+            @RequestParam(required = false) String searchValue,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             ModelMap map) {
 
@@ -56,4 +58,28 @@ public class ArticleController {
 
         return "articles/detail";
     }
+
+    @PostMapping("/{articleId}/form")
+    public String updateArticle(@PathVariable Long articleId,
+                                ArticleRequest articleRequest,
+                                @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
+        articleService.updateArticle(articleId, articleRequest.toDto(boardPrincipal.toDto()));
+        return "redirect:/articles/" + articleId;
+    }
+
+    @PostMapping("/{articleId}/delete")
+    public String deleteArticle(@PathVariable Long articleId,
+                                @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        articleService.deleteArticle(articleId, boardPrincipal.getUsername());
+        return "redirect:/articles";
+    }
+    @PostMapping("/form")
+    public String postNewArticle(ArticleRequest articleRequest,
+                                 @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
+        articleService.saveArticle(articleRequest.toDto(boardPrincipal.toDto()));
+        return "redirect:/articles";
+    }
+
 }

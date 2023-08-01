@@ -52,9 +52,20 @@ public class ArticleDto implements Serializable {
         );
     }
 
-    public Article toEntity() {
+    public static ArticleDto of(UserAccountDto userAccountDto, String title, String content, String hashtag) {
+        return new ArticleDto(
+                null,
+                userAccountDto,
+                title,
+                content,
+                hashtag,
+                null, null, null, null
+        );
+    }
+
+    public Article toEntity(UserAccount userAccount) {
         return Article.of(
-                userAccountDto.toEntity(),
+                userAccount,
                 title,
                 content,
                 hashtag

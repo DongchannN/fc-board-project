@@ -86,14 +86,15 @@ class ArticleServiceTest {
     @Test
     void givenArticleId_whenDeletingArticle_thenDeletesArticle() {
         //Given
-
-        BDDMockito.willDoNothing().given(articleRepository).delete(ArgumentMatchers.any(Article.class));
+        Long articleId = 1L;
+        String userId = "chan";
+        BDDMockito.willDoNothing().given(articleRepository).deleteByIdAndUserAccount_UserId(articleId, userId);
 
         //When
-        sut.deleteArticle(1L);
+        sut.deleteArticle(1L, userId);
 
         //Then
-        then(articleRepository).should().delete(ArgumentMatchers.any(Article.class));
+        then(articleRepository).should().deleteByIdAndUserAccount_UserId(articleId, userId);
     }
 
     @DisplayName("게시글 수를 조회하면, 게시글 수를 반환한다.")
